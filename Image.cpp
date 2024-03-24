@@ -36,10 +36,19 @@ Image::Image(const Image& other) {
 }
 
 Image::~Image() {
-	for (int i = 0; i < getH(); ++i) {
-		delete[] this->m_data[i];
+	release();
+}
+
+void Image::release() {
+	if (m_data != nullptr) {
+		for (int i = 0; i < getH(); ++i) {
+			delete[] this->m_data[i];
+		}
+		delete[] m_data;
+		m_data = nullptr;
+		m_width = 0;
+		m_height = 0;
 	}
-	delete[] m_data;
 }
 
 unsigned int Image::getW() const {
@@ -55,4 +64,32 @@ void Image::setW(unsigned int height) {
 }
 void Image::setH(unsigned int width) {
 	this->m_width = width;
+}
+
+Size Image::size() const {
+	return Size(m_width, m_height);
+}
+
+bool Image::isEmpty() const {
+	return (m_data == nullptr && m_width == 0 && m_height == 0);
+}
+
+std::ostream& operator<<(std::ostream& os, const Image& dt) {
+	os << "P2\n#Simple pgm image example\n" << dt.m_width << ' ' << dt.m_height << "\n255\n";
+	for (int i = 0; i < dt.m_height; ++i) {
+		for (int j = 0; j < dt.m_width; ++j) {
+			os << dt.m_data[i][j] << ' ';
+		}
+		os << '\n';
+	}
+	return os;
+}
+
+std::istream& operator>>(std::istream& is, Image& dt) {
+	char text[1000];
+	is.getline(text, 1000);
+	if (strcmp(text, "P2")) {
+		std::cout << "Error";
+		return is;
+	}
 }

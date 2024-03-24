@@ -7,11 +7,11 @@
 class Size {
 public:
 	Size();
-	Size(unsigned int width, unsigned int length);
+	Size(unsigned int width, unsigned int height);
 	int getWidth() const;
-	int getLength() const;
+	int getHeight() const;
 	void setWidth(unsigned int width);
-	void setLength(unsigned int length);
+	void setHeight(unsigned int height);
 	bool operator==(const Size& s) const;
 	bool operator<(const Size& s) const;
 	bool operator<=(const Size& s) const;
@@ -20,5 +20,5 @@ public:
 
 private:
 	unsigned int width;
-	unsigned int length;
+	unsigned int height;
 };

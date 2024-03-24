@@ -1,15 +1,18 @@
 #pragma once
+#include <iostream>
 #include <string>
 #include "Rectangle.h"
 #include "size.h"
 
 class Image {
 public:
+
 	//
 	unsigned int getW() const;
 	unsigned int getH() const;
 	void setW(unsigned int height);
 	void setH(unsigned int width);
+	Size size() const;
 	//
 	Image();
 	Image(unsigned int w, unsigned int h);
@@ -41,4 +44,5 @@ private:
 	unsigned int m_width;
 	unsigned int m_height;
 };
+
 

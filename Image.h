@@ -3,6 +3,7 @@
 #include <string>
 #include "Rectangle.h"
 #include "size.h"
+#include <exception>
 
 class Image {
 public:
@@ -12,7 +13,6 @@ public:
 	unsigned int getH() const;
 	void setW(unsigned int height);
 	void setH(unsigned int width);
-	Size size() const;
 	//
 	Image();
 	Image(unsigned int w, unsigned int h);

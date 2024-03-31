@@ -96,7 +96,7 @@ std::ostream& operator<<(std::ostream& os, const Image& dt) {
 	os << "P2\n#Simple pgm image example\n" << dt.m_width << ' ' << dt.m_height << "\n255\n";
 	for (int i = 0; i < dt.m_height; ++i) {
 		for (int j = 0; j < dt.m_width; ++j) {
-			os << dt.m_data[i][j] << ' ';
+			os << static_cast<int> (dt.m_data[i][j]) << ' ';
 		}
 		os << '\n';
 	}
@@ -112,14 +112,15 @@ std::istream& operator>>(std::istream& is, Image& dt) {
 	}
 	is.getline(text, 1000);//# comment
 	if (text[0] != '#') {
-		std::cout << "This is the comment line!";
+		std::cout << "Comment line is missing!";
 		return is;
 	}
-	is.getline(text, 1000);//width height
+	//width height
 	unsigned int width, height;
 	is >> width >> height;
 	if (width == 0 || height == 0) {
 		std::cout << "Height and width must be greater than 0!";
+		return is;
 	}
 	//255 pixel value
 	unsigned int maxValue;
@@ -131,7 +132,7 @@ std::istream& operator>>(std::istream& is, Image& dt) {
 		dt.m_data[i] = new unsigned char[width];
 	for (int i = 0; i < height; ++i) {
 		for (int j = 0; j < width; ++j) {
-			unsigned char pixel;
+			unsigned int pixel;
 			is >> pixel;
 			dt.m_data[i][j] = pixel;
 		}
@@ -140,33 +141,13 @@ std::istream& operator>>(std::istream& is, Image& dt) {
 }
 
 bool Image::load(std::string imagePath) {
+
 	std::ifstream file(imagePath);
 	if (!file.is_open()) {
 		std::cout << "Error opening file!";
 		return false;
 	}
-	char text[1000];
-	unsigned int width, height, maxValue;
-	file >> text;
-	if (strcmp(text, "P2")) {
-		std::cout << "Magic number must be P2!";
-		file.close();
-		return false;
-	}
-	file >> width >> height >> maxValue;
-	m_width = width;
-	m_height = height;
-	m_data = new unsigned char* [height];
-	for (unsigned int i = 0; i < height; ++i)
-		m_data[i] = new unsigned char[width];
-
-	for (unsigned int i = 0; i < height; ++i) {
-		for (unsigned int j = 0; j < width; ++j) {
-			unsigned char pixel;
-			file >> pixel;
-			m_data[i][j] = pixel;
-		}
-	}
+	file >> *this;
 	file.close();
 	return true;
 }
@@ -177,15 +158,7 @@ bool Image::save(std::string imagePath) const {
 		std::cout << "Error opening file!" << '\n';
 		return false;
 	}
-	file << "P2" << '\n';
-	file << m_width << ' ' << m_height << '\n';
-	file << "255" << '\n';
-	for (unsigned int y = 0; y < m_height; ++y) {
-		for (unsigned int x = 0; x < m_width; ++x) {
-			file << static_cast<int>(m_data[y][x]) << " ";
-		}
-		file << '\n';
-	}
+	file << *this;
 	file.close();
 	return true;
 }
@@ -213,13 +186,13 @@ unsigned int Image::height() const {
 }
 
 unsigned char& Image::at(unsigned int x, unsigned int y) {
-	if (x >= m_width || y >= m_height)
+	if (x >= m_height || y >= m_width)
 		throw std::exception();
 	return m_data[x][y];
 }
 
 unsigned char& Image::at(Point pt) {
-	if (pt.getX() >= m_width || pt.getY() >= m_height)
+	if (pt.getX() >= m_height || pt.getY() >= m_width)
 		throw std::exception();
 	return m_data[pt.getX()][pt.getY()];
 }
@@ -248,7 +221,7 @@ Image Image::operator-(const Image& image) {
 	return result;
 }
 
-Image Image::operator*(double s) {//????
+Image Image::operator*(double s) {
 	for (int i = 0; i < m_width; ++i) {
 		for (int j = 0; j < m_height; ++j) {
 			m_data[i][j] = m_data[i][j] * s;
@@ -261,4 +234,36 @@ unsigned char* Image::row(int y) {
 	if (y >= m_height || y < 0)
 		throw std::exception();
 	return m_data[y];
+}
+
+bool Image::getROI(Image& roiImg, Rectangle roiRect) {
+	if (roiImg.getW() < roiRect.getX() + roiRect.getW()|| roiImg.getH() < roiRect.getY() + roiRect.getH()) {
+		return false;
+	}
+	Image result(roiRect.getW(), roiRect.getH());
+	for (int i = 0; i < roiRect.getH(); ++i) {
+		for (int j = 0; j < roiRect.getW(); ++j) {
+			result.m_data[i][j] = roiImg.m_data[roiRect.getY() + i][roiRect.getX() + j];
+		}
+	}
+	roiImg = result;
+	return true;
+}
+bool Image::getROI(Image& roiImg, unsigned int x, unsigned int y, unsigned int	width, unsigned int height) {
+	if (roiImg.getW() < x + width || roiImg.getH() < y + height) {
+		return false;
+	}
+
+	Image result;
+	for (int i = 0; i < height; ++i) {
+		for (int j = 0; j < width; ++j) {
+			result.m_data[i][j] = roiImg.m_data[y + i][x + j];
+		}
+	}
+	result = roiImg;
+	return true;
+}
+
+const unsigned char& Image::at(unsigned int x, unsigned int y) const{
+	return m_data[x][y];
 }

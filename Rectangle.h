@@ -10,6 +10,7 @@ public:
 
 	Rectangle();
 	Rectangle(int x, int y, unsigned int width, unsigned int height);
+	Rectangle(Point p1, Point p2);
 	int getX() const;
 	int getY() const;
 	int getW() const;
@@ -23,8 +24,8 @@ public:
 	Rectangle operator&(const Rectangle& r) const;
 	Rectangle operator|(const Rectangle& r) const;
 	Rectangle& operator=(const Rectangle& r);
-
-
+	Point getTopLeft() const;
+	Point getBottomRight() const;
 
 private:
 	int x;

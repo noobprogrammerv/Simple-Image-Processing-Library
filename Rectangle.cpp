@@ -1,4 +1,7 @@
 #include "Rectangle.h"
+#include <cmath>
+#include <algorithm>
+
 
 Rectangle::Rectangle() {
 	this->x = 0;
@@ -12,6 +15,21 @@ Rectangle::Rectangle(int x, int y, unsigned int width, unsigned int height) {
 	this->y = y;
 	this->width = width;
 	this->height = height;
+}
+
+Rectangle::Rectangle(Point P1, Point P2) {
+	unsigned int x, y, width, height;
+
+	x = std::min(P1.getX(), P2.getX());
+	y = std::max(P1.getY(), P2.getY());
+
+	height = std::max(P1.getY(), P2.getY()) - std::min(P1.getY(), P2.getY());
+	width = std::max(P1.getX(), P2.getX()) - std::min(P1.getX(), P2.getX());
+
+	this->x = x;
+	this->y = y;
+	this->height = height;
+	this->width = width;
 }
 
 Rectangle Rectangle::operator+(const Point& p) {
@@ -99,4 +117,12 @@ Rectangle& Rectangle::operator=(const Rectangle& r) {
 	this->width = r.width;
 	this->height = r.height;
 	return *this;
+}
+
+Point Rectangle::getTopLeft() const {
+	return Point(x, y);
+}
+
+Point Rectangle::getBottomRight() const {
+	return Point(x + width, y + height);
 }

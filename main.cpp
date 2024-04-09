@@ -1,15 +1,21 @@
 #include <iostream>
 #include "Image.h"
 #include "BrightnessAndContrast.h"
+#include "Convolution.h"
 #include <fstream>
+
+int f(int x) {
+    return x % 255;
+}
 
 
 int main() {
-    Image img;
+    
+    /*Image img;
     std::ifstream fin("C:\\Users\\Alex\\source\\repos\\1. Anul 1\\OOP\\extra2\\extra2\\img.txt");
     fin >> img;
     std::ofstream fout("C:\\Users\\Alex\\source\\repos\\1. Anul 1\\OOP\\extra2\\extra2\\imgOut.txt");
-    fout << img;
+    fout << img;*/
 
     /*Image img;
     img.load("C:\\Users\\Alex\\source\\repos\\1. Anul 1\\OOP\\extra2\\extra2\\img.txt");
@@ -18,7 +24,27 @@ int main() {
     bc.process(img, dest);
     dest.save("C:\\Users\\Alex\\source\\repos\\1. Anul 1\\OOP\\extra2\\extra2\\imgOut.txt");*/
 
+    int** mat;
+    mat = new int* [3];
+    for (int i = 0; i < 3; ++i) {
+        mat[i] = new int[3];
+    }
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            mat[i][j] = 1;
+        }
+    }
+    mat[0][1] = 0;
+    mat[1][0] = 0;
+    mat[1][2] = 0, mat[2][1] = 0;
 
+    Image img;
+    std::ifstream fin("C:\\Users\\Alex\\source\\repos\\1. Anul 1\\OOP\\extra2\\extra2\\img.txt");
+    fin >> img;
+    Convolution cv(mat, 3, 3, f);
+    Image imgN(img.getW() - cv.getKernelW() + 1, img.getH() - cv.getKernelH() + 1, img.getm_scale());
+    cv.process(img, imgN);
+    imgN.save("C:\\Users\\Alex\\source\\repos\\1. Anul 1\\OOP\\extra2\\extra2\\imgOut2.txt");
 
 
 

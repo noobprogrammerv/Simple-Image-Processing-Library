@@ -15,7 +15,7 @@ public:
 	void setH(unsigned int width);
 	//
 	Image();
-	Image(unsigned int w, unsigned int h);
+	Image(unsigned int w, unsigned int h, unsigned int m_scale);
 	Image(const Image& other);
 	Image& operator=(const Image& other);
 	~Image();
@@ -31,6 +31,7 @@ public:
 	Size size() const;
 	unsigned int width() const;
 	unsigned int height() const;
+	unsigned int getm_scale() const;
 	unsigned char& at(unsigned int x, unsigned int y);
 	const unsigned char& at(unsigned int x, unsigned int y) const;
 	unsigned char& at(Point pt);
@@ -38,12 +39,13 @@ public:
 	void release();
 	friend std::ostream& operator<<(std::ostream& os, const Image& dt);
 	friend std::istream& operator>>(std::istream& is, Image& dt);
-	static Image zeros(unsigned int width, unsigned int height);
-	static Image ones(unsigned int width, unsigned int height);
+	static Image zeros(unsigned int width, unsigned int height, unsigned int scale);
+	static Image ones(unsigned int width, unsigned int height, unsigned int scale);
 private:
 	unsigned char** m_data;
 	unsigned int m_width;
 	unsigned int m_height;
+	unsigned int m_scale;
 };
 
 

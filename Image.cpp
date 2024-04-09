@@ -5,11 +5,13 @@ Image::Image() {
 	m_data = nullptr;
 	m_width = 0;
 	m_height = 0;
+	m_scale = 255;
 }
 
-Image::Image(unsigned int width, unsigned int height) {
+Image::Image(unsigned int width, unsigned int height, unsigned int m_scale) {
 	this->m_width = width;
 	this->m_height = height;
+	this->m_scale = m_scale;
 	m_data = new unsigned char* [height];
 	for (int i = 0; i < height; ++i) {
 		m_data[i] = new unsigned char[width];
@@ -21,9 +23,14 @@ Image::Image(unsigned int width, unsigned int height) {
 	}
 }
 
+unsigned int Image::getm_scale() const {
+	return m_scale;
+}
+
 Image::Image(const Image& other) {
 	m_height = other.getH();//schimb getH() etc
 	m_width = other.getW();
+	m_scale = other.m_scale;
 	m_data = new unsigned char* [other.getH()];
 	for (int i = 0; i < other.getH(); ++i) {
 		m_data[i] = new unsigned char[other.getW()];
@@ -45,6 +52,7 @@ Image& Image::operator=(const Image& other) {
 	this->release();
 	m_width = other.m_width;
 	m_height = other.m_height;
+	m_scale = other.m_scale;
 	m_data = new unsigned char* [other.m_width];
 	for (int i = 0; i < m_width; ++i) {
 		m_data[i] = new unsigned char[other.m_height];
@@ -93,7 +101,7 @@ bool Image::isEmpty() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Image& dt) {
-	os << "P2\n#Simple pgm image example\n" << dt.m_width << ' ' << dt.m_height << "\n255\n";
+	os << "P2\n#Simple pgm image example\n" << dt.m_width << ' ' << dt.m_height << "\n" << dt.m_scale << "\n";
 	for (int i = 0; i < dt.m_height; ++i) {
 		for (int j = 0; j < dt.m_width; ++j) {
 			os << static_cast<int> (dt.m_data[i][j]) << ' ';
@@ -125,6 +133,7 @@ std::istream& operator>>(std::istream& is, Image& dt) {
 	//255 pixel value
 	unsigned int maxValue;
 	is >> maxValue;
+	dt.m_scale = maxValue;
 	dt.m_width = width;
 	dt.m_height = height;
 	dt.m_data = new unsigned char* [height];
@@ -163,12 +172,12 @@ bool Image::save(std::string imagePath) const {
 	return true;
 }
 
-Image Image::zeros(unsigned int width, unsigned int height) {
-	Image img(width, height);
+Image Image::zeros(unsigned int width, unsigned int height, unsigned s) {
+	Image img(width, height, s);
 	return img;
 }
-Image Image::ones(unsigned int width, unsigned int height) {
-	Image img(width, height);
+Image Image::ones(unsigned int width, unsigned int height, unsigned int s) {
+	Image img(width, height, s);
 	for (int i = 0; i < height; ++i) {
 		for (int j = 0; j < width; ++j) {
 			img.m_data[i][j] = 1;
@@ -200,7 +209,7 @@ unsigned char& Image::at(Point pt) {
 Image Image::operator+(const Image& image) {
 	if (size() < image.size())
 		throw std::exception();
-	Image result(m_width, m_height);
+	Image result(m_width, m_height, image.m_scale);
 	for (int i = 0; i < m_width; ++i) {
 		for (int j = 0; j < m_height; ++j) {
 			result.m_data[i][j] = m_data[i][j] + image.m_data[i][j];
@@ -212,7 +221,7 @@ Image Image::operator+(const Image& image) {
 Image Image::operator-(const Image& image) {
 	if (size() < image.size())
 		throw std::exception();
-	Image result(m_width, m_height);
+	Image result(m_width, m_height, image.m_scale);
 	for (int i = 0; i < m_width; ++i) {
 		for (int j = 0; j < m_height; ++j) {
 			result.m_data[i][j] = m_data[i][j] - image.m_data[i][j];
@@ -240,7 +249,7 @@ bool Image::getROI(Image& roiImg, Rectangle roiRect) {
 	if (roiImg.getW() < roiRect.getX() + roiRect.getW()|| roiImg.getH() < roiRect.getY() + roiRect.getH()) {
 		return false;
 	}
-	Image result(roiRect.getW(), roiRect.getH());
+	Image result(roiRect.getW(), roiRect.getH(), roiImg.m_scale);
 	for (int i = 0; i < roiRect.getH(); ++i) {
 		for (int j = 0; j < roiRect.getW(); ++j) {
 			result.m_data[i][j] = roiImg.m_data[roiRect.getY() + i][roiRect.getX() + j];
@@ -264,6 +273,6 @@ bool Image::getROI(Image& roiImg, unsigned int x, unsigned int y, unsigned int	w
 	return true;
 }
 
-const unsigned char& Image::at(unsigned int x, unsigned int y) const{
+const unsigned char& Image::at(unsigned int x, unsigned int y) const {
 	return m_data[x][y];
 }
